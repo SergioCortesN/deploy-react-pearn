@@ -21,23 +21,28 @@ export async function connectDB() {
 }
 connectDB();
 
-// Create Express server
+// Creatze Express server
 const server = express();
 
 //CORS 
 const corsOptions : CorsOptions = {
     origin: function(origin, callback) {
-        const whitelist = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [];
+        // Permitir requests sin origin (como Postman, mobile apps, etc)
+        if (!origin) {
+            return callback(null, true);
+        }
         
-        if(process.env.NODE_ENV === 'development') {
-            // En desarrollo, permitir cualquier origen
-            callback(null, true);
-        } else if(!origin || whitelist.includes(origin)) {
+        const allowedOrigins = process.env.FRONTEND_URL 
+            ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+            : [];
+        
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('No permitido por CORS'));
         }
-    }
+    },
+    credentials: true
 } 
 server.use(cors(corsOptions));
 
