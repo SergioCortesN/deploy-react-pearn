@@ -4,24 +4,24 @@ import { Sequelize } from 'sequelize-typescript';
 import dotenv from 'dotenv';
 import Product from '../models/Product.model';
 import User from '../models/User.model';
-import pg from 'pg';
 
 dotenv.config();
 
-// Configurar pg para que no use SSL como string, sino como objeto
-if (process.env.NODE_ENV === 'production') {
-    pg.defaults.ssl = {
-        require: true,
-        rejectUnauthorized: false
-    };
-}
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Limpiar la URL removiendo ?ssl=true 
-const cleanDbUrl = (process.env.DATABASE_URL || '').replace(/\?ssl=true$/, '');
+// Parsear la URL y remover completamente el parámetro ssl
+const dbUrl = new URL(process.env.DATABASE_URL!);
+dbUrl.searchParams.delete('ssl'); // Eliminar el parámetro ssl de la query string
 
-const db = new Sequelize(cleanDbUrl, {
+const db = new Sequelize(dbUrl.toString(), {
     logging: false,
-    dialect: 'postgres'
+    dialect: 'postgres',
+    dialectOptions: isProduction ? {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
+    } : {}
 });
 
 db.addModels([Product, User]);
