@@ -27,12 +27,15 @@ const server = express();
 //CORS 
 const corsOptions : CorsOptions = {
     origin: function(origin, callback) {
-        const whitelist = [process.env.FRONTEND_URL];
+        const whitelist = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : [];
         
-        if(!origin || whitelist.includes(origin)) {
-            callback(null, true)
+        if(process.env.NODE_ENV === 'development') {
+            // En desarrollo, permitir cualquier origen
+            callback(null, true);
+        } else if(!origin || whitelist.includes(origin)) {
+            callback(null, true);
         } else {
-            callback(new Error('No permitido por CORS'))
+            callback(new Error('No permitido por CORS'));
         }
     }
 } 
