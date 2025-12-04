@@ -9,6 +9,12 @@ dotenv.config();
 
 const db = new Sequelize(process.env.DATABASE_URL as string, {
     logging: false,
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
+    }
 });
 
 db.addModels([Product, User]); // <-- AÑADIDO: User
