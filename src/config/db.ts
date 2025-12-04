@@ -7,8 +7,12 @@ import User from '../models/User.model'; // <-- NUEVO
 
 dotenv.config();
 
-const db = new Sequelize(process.env.DATABASE_URL as string, {
+// Eliminar ?ssl=true de la URL si existe
+const dbUrl = process.env.DATABASE_URL?.replace('?ssl=true', '') as string;
+
+const db = new Sequelize(dbUrl, {
     logging: false,
+    dialect: 'postgres',
     dialectOptions: {
         ssl: {
             require: true,
